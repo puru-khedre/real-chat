@@ -12,11 +12,12 @@ import {
 } from "@/ui/Form";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
-import { KeySquare, Mail } from "lucide-react";
+import { KeySquare, Loader2, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useUser } from "@/contexts/UserContext";
-import { account, databases } from "@/lib/appwrite";
+import FormSubmitButton from "./FormSubmitButton";
+import Link from "next/link";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -44,14 +45,14 @@ const LoginForm = () => {
   }
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="space-y-1">
               <FormLabel>
-                <Mail className="inline-block mr-1" />
+                <Mail className="inline mr-2 h-4 v-4" />
                 Email
               </FormLabel>
               <FormControl>
@@ -65,9 +66,9 @@ const LoginForm = () => {
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="space-y-1">
               <FormLabel>
-                <KeySquare className="inline-block mr-1" /> Password
+                <KeySquare className="inline mr-2 h-4 v-4" /> Password
               </FormLabel>
               <FormControl>
                 <Input
@@ -80,7 +81,14 @@ const LoginForm = () => {
             </FormItem>
           )}
         />
-        <Button type="submit">Login</Button>
+        <div className="flex w-full flex-row justify-between">
+          <FormSubmitButton isLoading={status.isLoading}>
+            Login
+          </FormSubmitButton>
+          <Button asChild variant="link" size="sm" className="opacity-70">
+            <Link href="/signup">Create account</Link>
+          </Button>
+        </div>
       </form>
     </Form>
   );

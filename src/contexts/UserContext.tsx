@@ -1,8 +1,18 @@
 "use client";
 
-import { account } from "@/lib/appwrite";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { ToastAction } from "@/components/ui/toast";
+import { useToast } from "@/hooks/useToast";
+import { account } from "@/lib/appwrite/appwrite";
 import { Models } from "appwrite";
-import { ReactNode, createContext, useContext, useState } from "react";
+import Link from "next/link";
+import {
+  ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 type User = Models.User<Models.Preferences>;
 
@@ -37,16 +47,43 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     isSuccess: false,
   });
 
-  const login = (email: string, password: string) => {
+  const { toast, dismiss } = useToast();
+
+  useEffect(() => {
+    const promise = account.get();
+
+    promise
+      .then((res) => {
+        console.log("in get");
+        setUser(res);
+      })
+      .catch((err) => console.log("error: ", err));
+  }, []);
+
+  const login = async (email: string, password: string) => {
     const promise = account.createEmailSession(email, password);
     setStatus((prev) => ({ ...prev, isLoading: true }));
 
     promise
-      .then((d) => {
-        console.log(d);
+      .then(async (response) => {
+        console.log(response);
+        const userData = await account.get();
+        setUser(userData);
         setStatus((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
       })
       .catch((err) => {
+        toast({
+          variant: "destructive",
+          title: "Invalid Credentials",
+          description: "Please check the email and password.",
+          action: (
+            <ToastAction altText="login button" onClick={() => dismiss()}>
+              <Button variant="link" asChild>
+                <Link href="/signup">try SignUp</Link>
+              </Button>
+            </ToastAction>
+          ),
+        });
         console.log(err);
         setStatus((prev) => ({ ...prev, isError: true, isLoading: false }));
       });
@@ -56,12 +93,25 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setStatus((prev) => ({ ...prev, isLoading: true }));
 
     promise
-      .then((d) => {
-        console.log(d);
+      .then((response) => {
+        console.log(response);
+        setUser(response);
         setStatus((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
       })
       .catch((err) => {
         console.log(err);
+        toast({
+          variant: "destructive",
+          title: "Try with different Email",
+          description: "A user is already Signed up with this email, try login",
+          action: (
+            <ToastAction altText="login button" onClick={() => dismiss()}>
+              <Button variant="link" asChild>
+                <Link href="/login">Login</Link>
+              </Button>
+            </ToastAction>
+          ),
+        });
         setStatus((prev) => ({ ...prev, isError: true, isLoading: false }));
       });
   };
@@ -71,8 +121,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setStatus((prev) => ({ ...prev, isLoading: true }));
 
     promise
-      .then((d) => {
-        console.log(d);
+      .then((response) => {
+        console.log(response);
         setStatus((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
       })
       .catch((err) => {
