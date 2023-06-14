@@ -9,6 +9,7 @@ function getEnvs() {
   if (!projectId && projectId === "")
     throw new Error("APPWRITE_PUBLIC_PROJECT_ID is not available");
 
+  console.log(projectId, endPoint);
   return { endPoint: endPoint || "", projectId: projectId || "" };
 }
 
